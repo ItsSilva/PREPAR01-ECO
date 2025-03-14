@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marco Polo the Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <h1>MARCO-POLO Game</h1>
+    <!-- #1 Container -->
+    <section id="container-start">
+      <h1>Welcome</h1>
+      <p>Enter your user name to start de game!</p>
+      <input
+        type="text"
+        id="username"
+        placeholder="Enter your username"
+        required
+      />
+      <button id="start-btn">Start</button>
+    </section>
+
+    <!-- #2 Container -->
+    <section id="container-rol">
+      <h2>USERNAME</h2>
+      <p>Your rol is:</p>
+      <h2>Marco/Polo/Special-Polo</h2>
+      <h1>Marco shouted: MARCO!</h1>
+      <button id="marco-btn">Scream Marco!</button>
+      <button id="polo-btn">Scream Polo!</button>
+      <p>Choose one polo:</p>
+      <button id="end-btn">A player scream: Polo!</button>
+    </section>
+
+    <!-- #3 Container -->
+    <section id="container-end">
+      <h1>Game Over</h1>
+      <p>The Marco MARCO-USERNAME wins!, POLO-USERNAME has been captured.</p>
+      <p>The Marco MARCO-USERNAME lost.</p>
+    </section>
+
+    <button id="get-btn" style="display: none">GET</button>
+    <button id="event-btn" style="display: none">Send event</button>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
