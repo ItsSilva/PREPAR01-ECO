@@ -26,7 +26,7 @@ app.get("/users", (req, res) => {
   res.send(users);
 });
 
-//Post route to create a new user
+// Post route to create a new user
 app.post("/users", (req, res) => {
   const { name } = req.body;
   console.log(name);
@@ -37,14 +37,23 @@ app.post("/users", (req, res) => {
 
   const id = users.length + 1;
 
-  const roleList = ["Marco", "Polo", "Special-Polo"];
+  const roleVerification = () => {
+    const hasMarco = users.some((user) => user.role === "Marco");
+    const hasSpecialPolo = users.some((user) => user.role === "Special-Polo");
 
-  const getRandomRole = () => {
-    const randomRoles = Math.floor(Math.random() * roleList.length);
-    return roleList[randomRoles];
+    if (hasMarco && hasSpecialPolo) {
+      return "Polo";
+    }
+
+    const availableRoles = [];
+    if (!hasMarco) availableRoles.push("Marco");
+    if (!hasSpecialPolo) availableRoles.push("Special-Polo");
+
+    const randomIndex = Math.floor(Math.random() * availableRoles.length);
+    return availableRoles[randomIndex];
   };
 
-  const user = { id, name, role: getRandomRole() };
+  const user = { id, name, role: roleVerification() };
   users.push(user);
   res.status(201).json(user);
 });
