@@ -2,15 +2,11 @@ const express = require("express");
 const path = require("path");
 const { Server } = require("socket.io");
 const { createServer } = require("http");
-const { error } = require("console");
 
 const app = express();
-
 const httpServer = createServer(app);
-
 const io = new Server(httpServer, {
-  // westa es una instancia de Socket.io en nuestro servidor
-  path: "/rea-time",
+  path: "/real-time",
   cors: {
     origin: "*",
   },
@@ -21,7 +17,7 @@ app.use("/app1", express.static(path.join(__dirname, "app1")));
 
 let users = [];
 
-//Get route to get all users
+// Get route to get all users
 app.get("/users", (req, res) => {
   res.send(users);
 });
@@ -56,23 +52,28 @@ app.post("/users", (req, res) => {
   const user = { id, name, role: roleVerification() };
   users.push(user);
   res.status(201).json(user);
+
+  io.emit("user-registered", users);
+
+  if (users.length >= 3) {
+    startCountdown();
+  }
 });
 
-// Get route to start the game
-app.get("/start-game", (req, res) => {
-  res.send("Game started");
+// Function to start the countdown
+const startCountdown = () => {
+  let count = 5;
+  const countdownInterval = setInterval(() => {
+    io.emit("countdown", count);
+    count--;
+
+    if (count < 0) {
+      clearInterval(countdownInterval);
+      io.emit("start-game", users); // Notify all clients that the game has started
+    }
+  }, 1000);
+};
+
+httpServer.listen(5050, () => {
+  console.log("Server running on http://localhost:5050");
 });
-
-// Post route to start the game
-app.post("start-game", (req, res) => {
-  io.on("connection", (socket) => {
-    socket.on("start-game", (data) => {
-      console.log("Game started");
-      io.emit("start-game", changeToTheGameScreen(data));
-    });
-  });
-
-  res.send("Game started");
-});
-
-httpServer.listen(5050);
