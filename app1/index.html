@@ -12,7 +12,7 @@
     <!-- #1 Container -->
     <form id="container-start" style="display: block">
       <h1>Welcome</h1>
-      <p>Enter your user name to start de game!</p>
+      <p>Enter your user name to start the game!</p>
       <input
         type="text"
         id="user-name"
@@ -24,19 +24,16 @@
     </form>
 
     <!-- #2 Container -->
-    <section id="load-container" style="display: none"></section>
+    <section id="load-container" style="display: none">
+      <p>Waiting for other players to connect</p>
+      <p id="countdown"></p>
+    </section>
 
     <!-- #3 Container -->
     <section id="container-rol" style="display: none">
-      <h1>${data.name}</h1>
-      <p>Your rol is:</p>
-      <h2>${data.role}</h2>
+      <h1>Your Role</h1>
       <p>Waiting for more players to join...</p>
-      <h1 style="display: none">Marco shouted: MARCO!</h1>
-      <button id="marco-btn" style="display: none">Scream Marco!</button>
-      <button id="polo-btn" style="display: none">Scream Polo!</button>
-      <p style="display: none">Choose one polo:</p>
-      <button id="end-btn" style="display: none">A player scream: Polo!</button>
+      <section id="users-cards"></section>
     </section>
 
     <!-- #4 Container -->
@@ -46,8 +43,6 @@
       <p>The Marco MARCO-USERNAME lost.</p>
     </section>
 
-    <button id="get-btn" style="display: none">GET</button>
-    <button id="event-btn" style="display: none">Send event</button>
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
     <script src="index.js"></script>
   </body>
