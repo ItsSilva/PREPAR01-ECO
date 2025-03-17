@@ -29,7 +29,27 @@ const registerUser = async (event) => {
   } else {
     console.error("Error", data);
   }
+  //Change to rol screen
+  const changeToTheRolScreen = () => {
+    const nameInput = document.getElementById("user-name");
+    const registerContainer = document.getElementById("container-start");
+
+    if (nameInput !== null && nameInput.value) {
+      registerContainer.style.display = "none";
+      rolScreen();
+    } else {
+      alert("Name is required");
+    }
+  };
+  changeToTheRolScreen();
 };
+
+//Rol screen
+const rolScreen = () => {
+  const rolContainer = document.getElementById("container-rol");
+  rolContainer.style.display = "block";
+};
+
 document.getElementById("start-btn").addEventListener("click", registerUser);
 
 const sendCoordenates = () => {
