@@ -11,25 +11,19 @@ const loadScreen = () => {
 };
 
 // Change to game screen
-const changeToTheGameScreen = (users) => {
+const changeToTheGameScreen = () => {
   const loadContainer = document.getElementById("load-container");
   loadContainer.style.display = "none";
 
   const gameContainer = document.getElementById("container-rol");
   gameContainer.style.display = "block";
 
-  const usersList = document.getElementById("users-cards");
-  usersList.innerHTML = "";
-  users.forEach((user) => {
-    const userElement = document.createElement("div");
-    userElement.classList.add(`user-card-${user.id}`);
-    userElement.innerHTML = `
-      <h1>${user.name}</h1>
-      <p>Your role is:</p>
-      <h2>${user.role}</h2>
-    `;
-    usersList.appendChild(userElement);
-  });
+  const userInfoContainer = document.getElementById("user-info");
+  userInfoContainer.innerHTML = `
+    <h1>${currentUser.name}</h1>
+    <p>Your role is:</p>
+    <h2>${currentUser.role}</h2>
+  `;
 };
 
 // Change to load screen
@@ -46,6 +40,8 @@ const changeToTheLoadScreen = () => {
 };
 
 // Register User
+let currentUser = null; // Current user information
+
 const registerUser = async (event) => {
   event.preventDefault();
 
@@ -63,6 +59,7 @@ const registerUser = async (event) => {
   const data = await response.json();
   if (response.ok) {
     console.log("User created", data);
+    currentUser = data;
     changeToTheLoadScreen();
   } else {
     console.error("Error", data);
@@ -70,10 +67,12 @@ const registerUser = async (event) => {
 };
 
 // Listening to server events
+// New user registered
 socket.on("user-registered", (users) => {
   console.log("New user registered:", users);
 });
 
+// Countdown
 socket.on("countdown", (count) => {
   const countdownElement = document.getElementById("countdown");
   if (countdownElement) {
@@ -81,9 +80,10 @@ socket.on("countdown", (count) => {
   }
 });
 
+// Start game
 socket.on("start-game", (users) => {
   console.log("Game started with users:", users);
-  changeToTheGameScreen(users);
+  changeToTheGameScreen();
 });
 
 document.getElementById("start-btn").addEventListener("click", registerUser);
