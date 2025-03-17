@@ -58,12 +58,21 @@ app.post("/users", (req, res) => {
   res.status(201).json(user);
 });
 
-io.on("connection", (socket) => {
-  socket.on("coordenadas", (data) => {
-    console.log(data);
-    io.emit("coordenadas", data);
+// Get route to start the game
+app.get("/start-game", (req, res) => {
+  res.send("Game started");
+});
+
+// Post route to start the game
+app.post("start-game", (req, res) => {
+  io.on("connection", (socket) => {
+    socket.on("start-game", (data) => {
+      console.log("Game started");
+      io.emit("start-game", changeToTheGameScreen(data));
+    });
   });
-  socket.on("notificar-a-todos", (data) => {});
+
+  res.send("Game started");
 });
 
 httpServer.listen(5050);
