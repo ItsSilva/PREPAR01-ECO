@@ -24,7 +24,14 @@
     </form>
 
     <!-- #2 Container -->
+    <section id="load-container" style="display: none"></section>
+
+    <!-- #3 Container -->
     <section id="container-rol" style="display: none">
+      <h1>${data.name}</h1>
+      <p>Your rol is:</p>
+      <h2>${data.role}</h2>
+      <p>Waiting for more players to join...</p>
       <h1 style="display: none">Marco shouted: MARCO!</h1>
       <button id="marco-btn" style="display: none">Scream Marco!</button>
       <button id="polo-btn" style="display: none">Scream Polo!</button>
@@ -32,7 +39,7 @@
       <button id="end-btn" style="display: none">A player scream: Polo!</button>
     </section>
 
-    <!-- #3 Container -->
+    <!-- #4 Container -->
     <section id="container-end" style="display: none">
       <h1>Game Over</h1>
       <p>The Marco MARCO-USERNAME wins!, POLO-USERNAME has been captured.</p>
