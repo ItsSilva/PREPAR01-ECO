@@ -10,7 +10,7 @@
   <body>
     <h1>MARCO-POLO Game</h1>
     <!-- #1 Container -->
-    <form id="container-start">
+    <form id="container-start" style="display: block">
       <h1>Welcome</h1>
       <p>Enter your user name to start de game!</p>
       <input
@@ -18,12 +18,14 @@
         id="user-name"
         placeholder="Enter your username"
         required
+        style="display: block"
       />
       <button id="start-btn">Start</button>
     </form>
 
     <!-- #2 Container -->
-    <section id="container-rol">
+    <section id="container-rol" style="display: none">
+      <p>Lorem</p>
       <h2>USERNAME</h2>
       <p>Your rol is:</p>
       <h2>Marco/Polo/Special-Polo</h2>
@@ -35,7 +37,7 @@
     </section>
 
     <!-- #3 Container -->
-    <section id="container-end">
+    <section id="container-end" style="display: none">
       <h1>Game Over</h1>
       <p>The Marco MARCO-USERNAME wins!, POLO-USERNAME has been captured.</p>
       <p>The Marco MARCO-USERNAME lost.</p>
