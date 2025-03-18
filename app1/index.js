@@ -24,6 +24,33 @@ const changeToTheGameScreen = () => {
     <p>Your role is:</p>
     <h2>${currentUser.role}</h2>
   `;
+
+  if (currentUser.role === "Marco") {
+    const marcoButton = document.createElement("button");
+    marcoButton.className = "btn-marco";
+    marcoButton.style.display = "block";
+    marcoButton.textContent = "Marco!";
+    marcoButton.addEventListener("click", async () => {
+      // Post Marco screen notification to all users
+      const response = await fetch("http://localhost:5050/notify-marco", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: currentUser.id }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Marco screen!", data);
+        currentUser = data;
+        marcoButton.style.display = "none";
+      } else {
+        console.error("Error", data);
+      }
+    });
+    userInfoContainer.appendChild(marcoButton);
+  }
 };
 
 // Change to load screen
@@ -84,6 +111,11 @@ socket.on("countdown", (count) => {
 socket.on("start-game", (users) => {
   console.log("Game started with users:", users);
   changeToTheGameScreen();
+});
+
+// Marco Screen
+socket.on("marco-notified", (users) => {
+  console.log("Users, Marco screen!", users);
 });
 
 document.getElementById("start-btn").addEventListener("click", registerUser);
