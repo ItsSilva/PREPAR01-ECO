@@ -16,6 +16,7 @@ app.use(express.json());
 app.use("/app1", express.static(path.join(__dirname, "app1")));
 
 let users = [];
+let respondedUsers = [];
 
 // Get route to get all users
 app.get("/users", (req, res) => {
@@ -62,7 +63,7 @@ app.post("/users", (req, res) => {
 
 // Function to start the countdown
 const startCountdown = () => {
-  let count = 5;
+  let count = 3;
   const countdownInterval = setInterval(() => {
     io.emit("countdown", count);
     count--;
@@ -80,7 +81,50 @@ app.post("/notify-marco", (req, res) => {
   const marco = users.find((user) => user.id === id);
   if (marco) {
     io.emit("marco-notified", marco);
+    io.emit("marco-shouted");
     res.json({ message: "Marco notified" });
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+
+// Post /notify-polo
+app.post("/notify-polo", (req, res) => {
+  const { id } = req.body;
+  const polo = users.find((user) => user.id === id);
+  if (polo) {
+    respondedUsers.push(polo);
+    io.emit("polo-notified", respondedUsers); // send the list of users that have responded
+    res.json({ message: "Polo notified" });
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+
+// Get /responded-users
+app.get("/responded-users", (req, res) => {
+  res.json(respondedUsers);
+});
+
+// Post /notification Marco select a polo
+app.post("/notification", (req, res) => {
+  const { id } = req.body;
+  const polo = users.find((user) => user.id === id);
+  if (polo) {
+    io.emit("notification", polo);
+    res.json({ message: "Polo selected" });
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+
+// Post /end-game
+app.post("/end-game", (req, res) => {
+  const { id } = req.body;
+  const selectedPolo = users.find((user) => user.id === id);
+  if (selectedPolo) {
+    io.emit("end-game", selectedPolo);
+    res.json({ message: "Game ended", selectedPolo });
   } else {
     res.status(404).json({ error: "User not found" });
   }
