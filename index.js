@@ -74,6 +74,18 @@ const startCountdown = () => {
   }, 1000);
 };
 
+// Post /notify-marco
+app.post("/notify-marco", (req, res) => {
+  const { id } = req.body;
+  const marco = users.find((user) => user.id === id);
+  if (marco) {
+    io.emit("marco-notified", marco);
+    res.json({ message: "Marco notified" });
+  } else {
+    res.status(404).json({ error: "User not found" });
+  }
+});
+
 httpServer.listen(5050, () => {
   console.log("Server running on http://localhost:5050");
 });
