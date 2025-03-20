@@ -17,6 +17,7 @@ app.use("/app1", express.static(path.join(__dirname, "app1")));
 
 let users = [];
 let respondedUsers = [];
+let gameInProgress = false;
 
 // Get route to get all users
 app.get("/users", (req, res) => {
@@ -56,7 +57,8 @@ app.post("/users", (req, res) => {
 
   io.emit("user-registered", users);
 
-  if (users.length >= 3) {
+  if (users.length >= 3 && !gameInProgress) {
+    gameInProgress = true;
     startCountdown();
   }
 });
@@ -70,7 +72,25 @@ const startCountdown = () => {
 
     if (count < 0) {
       clearInterval(countdownInterval);
-      io.emit("start-game", users); // Notify all clients that the game has started
+      io.emit("start-game", users);
+    }
+  }, 1000);
+};
+
+// Function to start the reset countdown
+const startResetCountdown = () => {
+  let count = 5;
+  const resetCountdownInterval = setInterval(() => {
+    io.emit("reset-countdown", count);
+    count--;
+
+    if (count < 0) {
+      clearInterval(resetCountdownInterval);
+      users = [];
+      respondedUsers = [];
+      gameInProgress = false;
+
+      io.emit("reset-game");
     }
   }, 1000);
 };
@@ -93,7 +113,6 @@ app.post("/notify-polo", (req, res) => {
   const { id } = req.body;
   const polo = users.find((user) => user.id === id);
   if (polo) {
-    // Check if this polo has already responded
     if (!respondedUsers.some((user) => user.id === polo.id)) {
       respondedUsers.push(polo);
     }
@@ -131,7 +150,7 @@ app.post("/end-game", (req, res) => {
   if (selectedPolo) {
     io.emit("end-game", selectedPolo);
 
-    respondedUsers = [];
+    startResetCountdown();
 
     res.json({ message: "Game ended", selectedPolo });
   } else {
@@ -151,6 +170,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    const disconnectedUserIndex = users.findIndex(
+      (user) => user.socketId === socket.id
+    );
+    if (disconnectedUserIndex !== -1) {
+      users.splice(disconnectedUserIndex, 1);
+      console.log("User removed from game. Remaining users:", users.length);
+    }
   });
 });
 
