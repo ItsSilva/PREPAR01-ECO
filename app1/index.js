@@ -271,13 +271,13 @@ socket.on("end-game", (selectedPolo) => {
   if (marcoWins) {
     endContainer.innerHTML = `
       <h1>Game Over</h1>
-      <p>The Marco ${currentUser.name} wins! ${selectedPolo.name} has been captured.</p>
+      <p>The Marco wins! ${selectedPolo.name} has been captured.</p>
       <p>${selectedPolo.name} was the Special-Polo!</p>
     `;
   } else {
     endContainer.innerHTML = `
       <h1>Game Over</h1>
-      <p>The Marco ${currentUser.name} lost!</p>
+      <p>The Marco lost!</p>
       <p>${selectedPolo.name} was just a regular Polo! The Special-Polo escaped!</p>
     `;
   }
