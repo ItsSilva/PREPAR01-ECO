@@ -94,7 +94,15 @@ app.post("/notify-polo", (req, res) => {
   const polo = users.find((user) => user.id === id);
   if (polo) {
     respondedUsers.push(polo);
-    io.emit("polo-notified", respondedUsers); // send the list of users that have responded
+
+    const marcoUser = users.find((user) => user.role === "Marco");
+    if (marcoUser) {
+      const marcoSocket = io.sockets.sockets.get(marcoUser.socketId);
+      if (marcoSocket) {
+        marcoSocket.emit("polo-notified", respondedUsers);
+      }
+    }
+
     res.json({ message: "Polo notified" });
   } else {
     res.status(404).json({ error: "User not found" });
@@ -128,6 +136,17 @@ app.post("/end-game", (req, res) => {
   } else {
     res.status(404).json({ error: "User not found" });
   }
+});
+
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  socket.on("register-user", (userId) => {
+    const user = users.find((user) => user.id === userId);
+    if (user) {
+      user.socketId = socket.id;
+    }
+  });
 });
 
 httpServer.listen(5050, () => {
