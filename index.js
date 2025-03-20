@@ -95,10 +95,12 @@ app.post("/notify-polo", (req, res) => {
   if (polo) {
     respondedUsers.push(polo);
 
+    // Encontrar el socket del usuario con el rol de Marco
     const marcoUser = users.find((user) => user.role === "Marco");
     if (marcoUser) {
       const marcoSocket = io.sockets.sockets.get(marcoUser.socketId);
       if (marcoSocket) {
+        console.log("Sending respondedUsers to Marco:", respondedUsers); // Debugging
         marcoSocket.emit("polo-notified", respondedUsers);
       }
     }

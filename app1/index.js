@@ -19,6 +19,16 @@ const btnMarcoActivationForEndGame = async () => {
       const respondedUsers = await response.json();
       console.log("Users who shouted Polo:", respondedUsers); // Debugging
 
+      if (!Array.isArray(respondedUsers)) {
+        console.error("respondedUsers is not an array:", respondedUsers);
+        return;
+      }
+
+      if (respondedUsers.length === 0) {
+        console.log("No Polos have responded yet.");
+        return;
+      }
+
       const userInfoContainer = document.getElementById("user-info");
       if (!userInfoContainer) {
         console.error("The user-info container does not exist in the DOM.");
@@ -32,13 +42,17 @@ const btnMarcoActivationForEndGame = async () => {
         "Polo screamed! Click a button to select the special Polo and end the game!";
       userInfoContainer.appendChild(text);
 
+      // Crear un botón por cada Polo que respondió
       respondedUsers.forEach((user) => {
+        console.log("Creating button for user:", user); // Debugging
+
         const btnSelectPolo = document.createElement("button");
         btnSelectPolo.className = "btn-select-polo";
         btnSelectPolo.textContent = user.name;
         btnSelectPolo.style.display = "block";
         btnSelectPolo.style.marginBottom = "10px";
 
+        // Manejar el clic en el botón
         btnSelectPolo.addEventListener("click", async () => {
           const response = await fetch("http://localhost:5050/end-game", {
             method: "POST",
@@ -56,8 +70,11 @@ const btnMarcoActivationForEndGame = async () => {
           }
         });
 
+        // Agregar el botón al contenedor
         userInfoContainer.appendChild(btnSelectPolo);
       });
+
+      console.log("Buttons created successfully."); // Debugging
     } catch (error) {
       console.error("Error fetching responded users:", error);
     }
@@ -157,32 +174,36 @@ const changeToTheLoadScreen = () => {
 };
 
 // Register User
-let currentUser = null; // Current user information
+let currentUser = null;
 
 const registerUser = async (event) => {
   event.preventDefault();
-
   const name = document.getElementById("user-name").value;
-  console.log(name);
 
-  const response = await fetch("http://localhost:5050/users", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name }),
-  });
+  if (!name) {
+    alert("Name is required");
+    return;
+  }
 
-  const data = await response.json();
-  if (response.ok) {
-    console.log("User created", data);
-    currentUser = data;
-    changeToTheLoadScreen();
+  try {
+    const response = await fetch("http://localhost:5050/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
 
-    // Emit the socket ID to the server
-    socket.emit("register-user", currentUser.id);
-  } else {
-    console.error("Error", data);
+    const data = await response.json();
+    if (response.ok) {
+      console.log("User created:", data);
+      currentUser = data; // Asignar correctamente
+      console.log("Current user set:", currentUser);
+      changeToTheLoadScreen();
+      socket.emit("register-user", currentUser.id);
+    } else {
+      console.error("Error creating user:", data);
+    }
+  } catch (error) {
+    console.error("Network error:", error);
   }
 };
 
@@ -219,10 +240,15 @@ socket.on("notification", (users) => {
 });
 
 // Notification Marco select a polo
-socket.on("polo-notified", (respondedUsers) => {
-  console.log("Polo-notified event received:", respondedUsers);
+socket.on("polo-notified", (users) => {
+  console.log("Polo-notified event received:", users);
+
   if (currentUser.role === "Marco") {
-    btnMarcoActivationForEndGame();
+    console.log("Activating btnMarcoActivationForEndGame for Marco...");
+    btnMarcoActivationForEndGame(); // Asegurar que Marco recibe el botón correcto
+  } else {
+    console.log("Updating UI for Polo...");
+    btnPoloActivation(); // Solo si es Polo se activa esto
   }
 });
 
