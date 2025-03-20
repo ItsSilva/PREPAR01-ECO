@@ -93,17 +93,13 @@ app.post("/notify-polo", (req, res) => {
   const { id } = req.body;
   const polo = users.find((user) => user.id === id);
   if (polo) {
-    respondedUsers.push(polo);
-
-    // Encontrar el socket del usuario con el rol de Marco
-    const marcoUser = users.find((user) => user.role === "Marco");
-    if (marcoUser) {
-      const marcoSocket = io.sockets.sockets.get(marcoUser.socketId);
-      if (marcoSocket) {
-        console.log("Sending respondedUsers to Marco:", respondedUsers); // Debugging
-        marcoSocket.emit("polo-notified", respondedUsers);
-      }
+    // Check if this polo has already responded
+    if (!respondedUsers.some((user) => user.id === polo.id)) {
+      respondedUsers.push(polo);
     }
+
+    // Marco receives the updated list
+    io.emit("polo-notified", respondedUsers);
 
     res.json({ message: "Polo notified" });
   } else {
@@ -134,6 +130,9 @@ app.post("/end-game", (req, res) => {
   const selectedPolo = users.find((user) => user.id === id);
   if (selectedPolo) {
     io.emit("end-game", selectedPolo);
+
+    respondedUsers = [];
+
     res.json({ message: "Game ended", selectedPolo });
   } else {
     res.status(404).json({ error: "User not found" });
@@ -148,6 +147,10 @@ io.on("connection", (socket) => {
     if (user) {
       user.socketId = socket.id;
     }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
   });
 });
 
