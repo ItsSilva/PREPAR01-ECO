@@ -25,7 +25,7 @@ const btnMarcoActivationForEndGame = async () => {
       }
 
       if (respondedUsers.length === 0) {
-        console.log("No Polos have responded yet.");
+        console.log("No one have responded yet.");
         return;
       }
 
@@ -42,7 +42,6 @@ const btnMarcoActivationForEndGame = async () => {
         "Polo screamed! Click a button to select the special Polo and end the game!";
       userInfoContainer.appendChild(text);
 
-      // Create a button for each Polo that responded
       respondedUsers.forEach((user) => {
         console.log("Creating button for user:", user);
 
@@ -134,7 +133,6 @@ const changeToTheGameScreen = () => {
     marcoButton.style.display = "block";
     marcoButton.textContent = "Marco!";
     marcoButton.addEventListener("click", async () => {
-      // Post Marco screen notification to all users
       const response = await fetch("http://localhost:5050/notify-marco", {
         method: "POST",
         headers: {
@@ -166,6 +164,23 @@ const changeToTheLoadScreen = () => {
   } else {
     alert("Name is required");
   }
+};
+
+// Reset to initial screen
+const resetGame = () => {
+  document.getElementById("load-container").style.display = "none";
+  document.getElementById("container-rol").style.display = "none";
+  document.getElementById("container-end").style.display = "none";
+
+  document.getElementById("container-start").style.display = "block";
+
+  if (document.getElementById("user-name")) {
+    document.getElementById("user-name").value = "";
+  }
+
+  currentUser = null;
+
+  console.log("Game has been reset to initial state");
 };
 
 // Register User
@@ -208,6 +223,22 @@ socket.on("countdown", (count) => {
   if (countdownElement) {
     countdownElement.textContent = `Game starting in ${count} seconds...`;
   }
+});
+
+// Reset countdown
+socket.on("reset-countdown", (count) => {
+  const endContainer = document.getElementById("container-end");
+  const countdownElement = document.getElementById("reset-countdown");
+
+  if (!countdownElement) {
+    const newCountdownElement = document.createElement("p");
+    newCountdownElement.id = "reset-countdown";
+    endContainer.appendChild(newCountdownElement);
+  }
+
+  document.getElementById(
+    "reset-countdown"
+  ).textContent = `New game starting in ${count} seconds...`;
 });
 
 // Start game
@@ -273,14 +304,21 @@ socket.on("end-game", (selectedPolo) => {
       <h1>Game Over</h1>
       <p>The Marco wins! ${selectedPolo.name} has been captured.</p>
       <p>${selectedPolo.name} was the Special-Polo!</p>
+      <p id="reset-countdown"></p>
     `;
   } else {
     endContainer.innerHTML = `
       <h1>Game Over</h1>
       <p>The Marco lost!</p>
       <p>${selectedPolo.name} was just a regular Polo! The Special-Polo escaped!</p>
+      <p id="reset-countdown"></p>
     `;
   }
+});
+
+// Reset game event
+socket.on("reset-game", () => {
+  resetGame();
 });
 
 document.getElementById("start-btn").addEventListener("click", registerUser);
