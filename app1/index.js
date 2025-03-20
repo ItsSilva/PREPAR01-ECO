@@ -3,7 +3,7 @@ const socket = io("http://localhost:5050", { path: "/real-time" });
 // Load screen
 const loadScreen = () => {
   const loadContainer = document.getElementById("load-container");
-  loadContainer.style.display = "block";
+  loadContainer.style.display = "flex";
   loadContainer.innerHTML = `
     <p>Waiting for other players to connect</p>
     <p id="countdown"></p>
@@ -48,7 +48,7 @@ const btnMarcoActivationForEndGame = async () => {
         const btnSelectPolo = document.createElement("button");
         btnSelectPolo.className = "btn-select-polo";
         btnSelectPolo.textContent = user.name;
-        btnSelectPolo.style.display = "block";
+        btnSelectPolo.style.display = "flex";
         btnSelectPolo.style.marginBottom = "10px";
 
         btnSelectPolo.addEventListener("click", async () => {
@@ -118,7 +118,7 @@ const changeToTheGameScreen = () => {
   loadContainer.style.display = "none";
 
   const gameContainer = document.getElementById("container-rol");
-  gameContainer.style.display = "block";
+  gameContainer.style.display = "flex";
 
   const userInfoContainer = document.getElementById("user-info");
   userInfoContainer.innerHTML = `
@@ -130,7 +130,7 @@ const changeToTheGameScreen = () => {
   if (currentUser.role === "Marco") {
     const marcoButton = document.createElement("button");
     marcoButton.className = "btn-marco";
-    marcoButton.style.display = "block";
+    marcoButton.style.display = "flex";
     marcoButton.textContent = "Marco!";
     marcoButton.addEventListener("click", async () => {
       const response = await fetch("http://localhost:5050/notify-marco", {
@@ -172,7 +172,7 @@ const resetGame = () => {
   document.getElementById("container-rol").style.display = "none";
   document.getElementById("container-end").style.display = "none";
 
-  document.getElementById("container-start").style.display = "block";
+  document.getElementById("container-start").style.display = "flex";
 
   if (document.getElementById("user-name")) {
     document.getElementById("user-name").value = "";
@@ -295,7 +295,7 @@ socket.on("end-game", (selectedPolo) => {
   gameContainer.style.display = "none";
 
   const endContainer = document.getElementById("container-end");
-  endContainer.style.display = "block";
+  endContainer.style.display = "flex";
 
   const marcoWins = selectedPolo.role === "Special-Polo";
 
