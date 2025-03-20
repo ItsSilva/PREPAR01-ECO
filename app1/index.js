@@ -11,13 +11,13 @@ const loadScreen = () => {
 };
 
 const btnMarcoActivationForEndGame = async () => {
-  console.log("btnMarcoActivationForEndGame called!"); // Debugging
+  console.log("btnMarcoActivationForEndGame called!");
 
   if (currentUser.role === "Marco") {
     try {
       const response = await fetch("http://localhost:5050/responded-users");
       const respondedUsers = await response.json();
-      console.log("Users who shouted Polo:", respondedUsers); // Debugging
+      console.log("Users who shouted Polo:", respondedUsers);
 
       if (!Array.isArray(respondedUsers)) {
         console.error("respondedUsers is not an array:", respondedUsers);
@@ -42,9 +42,9 @@ const btnMarcoActivationForEndGame = async () => {
         "Polo screamed! Click a button to select the special Polo and end the game!";
       userInfoContainer.appendChild(text);
 
-      // Crear un botón por cada Polo que respondió
+      // Create a button for each Polo that responded
       respondedUsers.forEach((user) => {
-        console.log("Creating button for user:", user); // Debugging
+        console.log("Creating button for user:", user);
 
         const btnSelectPolo = document.createElement("button");
         btnSelectPolo.className = "btn-select-polo";
@@ -52,7 +52,6 @@ const btnMarcoActivationForEndGame = async () => {
         btnSelectPolo.style.display = "block";
         btnSelectPolo.style.marginBottom = "10px";
 
-        // Manejar el clic en el botón
         btnSelectPolo.addEventListener("click", async () => {
           const response = await fetch("http://localhost:5050/end-game", {
             method: "POST",
@@ -70,16 +69,15 @@ const btnMarcoActivationForEndGame = async () => {
           }
         });
 
-        // Agregar el botón al contenedor
         userInfoContainer.appendChild(btnSelectPolo);
       });
 
-      console.log("Buttons created successfully."); // Debugging
+      console.log("Buttons created successfully.");
     } catch (error) {
       console.error("Error fetching responded users:", error);
     }
   } else {
-    console.log("This function is only for Marco."); // Debugging
+    console.log("This function is only for Marco.");
   }
 };
 
@@ -105,7 +103,6 @@ const btnPoloActivation = () => {
       const data = await response.json();
       if (response.ok) {
         console.log("Polo screen!", data);
-        currentUser = data;
         btnPolo.style.display = "none";
       } else {
         console.error("Error", data);
@@ -149,9 +146,7 @@ const changeToTheGameScreen = () => {
       const data = await response.json();
       if (response.ok) {
         console.log("Marco screen!", data);
-        currentUser = data;
         marcoButton.style.display = "none";
-        socket.emit("marco-shouted"); // Notify the server that Marco screamed
       } else {
         console.error("Error", data);
       }
@@ -195,7 +190,7 @@ const registerUser = async (event) => {
     const data = await response.json();
     if (response.ok) {
       console.log("User created:", data);
-      currentUser = data; // Asignar correctamente
+      currentUser = data;
       console.log("Current user set:", currentUser);
       changeToTheLoadScreen();
       socket.emit("register-user", currentUser.id);
@@ -239,16 +234,25 @@ socket.on("notification", (users) => {
   changeToTheLoadScreen();
 });
 
-// Notification Marco select a polo
-socket.on("polo-notified", (users) => {
-  console.log("Polo-notified event received:", users);
+// Polo Notified
+socket.on("polo-notified", (respondedUsers) => {
+  console.log("Polo-notified event received:", respondedUsers);
+
+  if (!currentUser || !currentUser.role) {
+    console.error(
+      "Error: currentUser is not defined or doesn't have 'role'",
+      currentUser
+    );
+    return;
+  }
+
+  console.log("Current user role:", currentUser.role);
 
   if (currentUser.role === "Marco") {
-    console.log("Activating btnMarcoActivationForEndGame for Marco...");
-    btnMarcoActivationForEndGame(); // Asegurar que Marco recibe el botón correcto
+    console.log("User is Marco, activating btnMarcoActivationForEndGame");
+    btnMarcoActivationForEndGame();
   } else {
-    console.log("Updating UI for Polo...");
-    btnPoloActivation(); // Solo si es Polo se activa esto
+    console.log("User is not Marco, no action needed for polo-notified event");
   }
 });
 
@@ -262,11 +266,21 @@ socket.on("end-game", (selectedPolo) => {
   const endContainer = document.getElementById("container-end");
   endContainer.style.display = "block";
 
-  endContainer.innerHTML = `
-    <h1>Game Over</h1>
-    <p>The Marco ${currentUser.name} selected ${selectedPolo.name}!</p>
-    <p>${selectedPolo.name} is ${selectedPolo.role}!</p>
-  `;
+  const marcoWins = selectedPolo.role === "Special-Polo";
+
+  if (marcoWins) {
+    endContainer.innerHTML = `
+      <h1>Game Over</h1>
+      <p>The Marco ${currentUser.name} wins! ${selectedPolo.name} has been captured.</p>
+      <p>${selectedPolo.name} was the Special-Polo!</p>
+    `;
+  } else {
+    endContainer.innerHTML = `
+      <h1>Game Over</h1>
+      <p>The Marco ${currentUser.name} lost!</p>
+      <p>${selectedPolo.name} was just a regular Polo! The Special-Polo escaped!</p>
+    `;
+  }
 });
 
 document.getElementById("start-btn").addEventListener("click", registerUser);
